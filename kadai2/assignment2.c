@@ -1,0 +1,22 @@
+#include <stdio.h>
+#include <math.h>
+
+int main()
+{
+	int m,n;
+	double x,S;
+
+	n = 10;
+	x=1.0;
+
+	S = 1.0;
+
+	for (m = n; m > 0; m--) {
+	S = 1.0 + (x/m ) * S;
+	}
+
+	printf("|S-exp(x)|=%g for n=%d and x=%\n", fabs(S - exp(x)), n, x);
+
+	return 0;
+
+}
