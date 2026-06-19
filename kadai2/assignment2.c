@@ -15,7 +15,7 @@ int main()
 	S = 1.0 + (x/m ) * S;
 	}
 
-	printf("|S-exp(x)|=%g for n=%d and x=%\n", fabs(S - exp(x)), n, x);
+	printf("|S-exp(x)|=%g for n=%d and x=%g\n", fabs(S - exp(x)), n, x);
 
 	return 0;
 
