@@ -2,14 +2,11 @@
 #include <stdlib.h>
 #include <math.h>
 
-// 被積分関数: f(x) = 1 / (1 + x)
-// これを 0 から 1 まで積分すると log(2) になります
 double func(double x)
 {
     return 1.0 / (1.0 + x);
 }
 
-// シンプソン則による積分計算
 double SimpInt(int n, double a, double b)
 {
     int i;

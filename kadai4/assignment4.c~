@@ -1,0 +1,14 @@
+#include <stdio.h>
+#include <math.h>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+double func(double x, double v)
+{
+    double t;
+
+    t = tanh(x / sqrt(v) + 1.0 / v);
+    return t * t * exp(-x * x / 2.0) / sqrt(2.0 * M_PI);
+}
