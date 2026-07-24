@@ -1,0 +1,66 @@
+#include <stdio.h>
+#include <math.h>
+
+// 定数の定義
+#define SIGMA2 0.1
+#define ALPHA 1.8
+#define EPSILON 1e-9 // 収束判定のための許容誤差
+
+// MSE(v) の定義
+double mse(double v) {
+    return v / (1.0 + v);
+}
+
+// 非線形方程式 f(v) = v - sigma^2 - alpha * MSE(v) = 0
+double f(double v) {
+    return v - SIGMA2 - ALPHA * mse(v);
+}
+
+// 二分法（Bisection Method）の実装
+double bisection(double a, double b) {
+    double c;
+    while ((b - a) >= EPSILON) {
+        c = (a + b) / 2.0;
+
+        // f(c) が極めて 0 に近い場合は終了
+        if (fabs(f(c)) < 1e-15) {
+            break;
+        }
+
+        // 異符号の区間を縮めていく
+        if (f(c) * f(a) < 0) {
+            b = c; // 解は [a, c] の間にある
+        } else {
+            a = c; // 解は [c, b] の間にある
+        }
+    }
+    return c;
+}
+
+int main() {
+
+    // 1. 二分法による数値解（初期探索範囲 [0.0, 2.0]）
+    double a = 0.0;
+    double b = 2.0;
+    double v_num = bisection(a, b);
+
+    printf("1. Bisection Method (Numerical Solution):\n");
+    printf("   v = %.9f\n\n", v_num);
+
+    // 2. 閉形式（解析解）の算出
+    // 二次方程式: v^2 + B*v + C = 0
+    // ここで B = (1 - sigma^2 - alpha), C = -sigma^2
+    double B = 1.0 - SIGMA2 - ALPHA;
+    double C = -SIGMA2;
+    // v > 0 のため、解の公式のプラス側を採用
+    double v_ana = (-B + sqrt(B * B - 4.0 * C)) / 2.0;
+
+    printf("2. Closed-form (Analytical Solution):\n");
+    printf("   v = %.9f\n\n", v_ana);
+
+    // 両者の比較
+    double diff = fabs(v_num - v_ana);
+    printf("Difference (Error): %.9e\n", diff);
+
+    return 0;
+}

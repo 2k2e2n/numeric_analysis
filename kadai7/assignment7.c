@@ -1,0 +1,110 @@
+#include <stdio.h>
+#include <math.h>
+
+// M_PI が定義されていない環境への対応
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+// 積分される関数
+double integrand(double x, double v) {
+    double term1 = tanh(x / sqrt(v) + 1.0 / v);
+    double term2 = 1.0 / sqrt(2.0 * M_PI);
+    double term3 = exp(-x * x / 2.0);
+    return term1 * term1 * term2 * term3;
+}
+
+// シンプソン則による数値積分
+double SimpInt(int n, double a, double b, double v) {
+    double h = (b - a) / (double)n;
+    double sum = integrand(a, v) + integrand(b, v);
+    
+    for (int i = 1; i < n; i++) {
+        double x = a + i * h;
+        if (i % 2 == 0) {
+            sum += 2.0 * integrand(x, v);
+        } else {
+            sum += 4.0 * integrand(x, v);
+        }
+    }
+    return sum * (h / 3.0);
+}
+
+// MSE(v) の計算
+double MSE(double v) {
+    // 積分区間 [-10, 10], 分割数 1000
+    double integral_val = SimpInt(1000, -10.0, 10.0, v);
+    return 1.0 - integral_val;
+}
+
+// 非線形方程式 F(v)
+double F(double v) {
+    double sigma2 = 0.1;
+    double alpha = 1.8;
+    return sigma2 + alpha * MSE(v) - v;
+}
+
+// 二分法 (Bisection Method)
+double bisection(double a, double b, double tol) {
+    double c;
+    while ((b - a) / 2.0 > tol) {
+        c = (a + b) / 2.0;
+        if (F(c) == 0.0) {
+            return c;
+        } else if (F(a) * F(c) < 0.0) {
+            b = c;
+        } else {
+            a = c;
+        }
+    }
+    return (a + b) / 2.0;
+}
+
+// メイン関数
+int main() {
+    double sigma2 = 0.1;
+    double alpha = 1.8;
+    
+    // ヒント1: 解の探索範囲を決める
+    double v_start = sigma2;             // 0.1
+    double v_end = sigma2 + alpha;       // 1.9
+    
+    // ヒント2: 探索範囲を100個の小区間に等分する
+    int n_intervals = 100;
+    double dv = (v_end - v_start) / n_intervals;
+    
+    double roots[3];
+    int root_count = 0;
+    
+    printf("探索範囲: [%.1f, %.1f] を %d 分割して探索します。\n\n", v_start, v_end, n_intervals);
+    
+    // ヒント3: 各小区間について二分法を適用
+    for (int i = 0; i < n_intervals; i++) {
+        double v1 = v_start + i * dv;
+        double v2 = v1 + dv;
+        
+        double f1 = F(v1);
+        double f2 = F(v2);
+        
+        // 符号が反転していれば解が存在する
+        if (f1 * f2 < 0.0) {
+            double root = bisection(v1, v2, 1e-6);
+            roots[root_count] = root;
+            root_count++;
+            printf("解が見つかりました: v = %.6f\n", root);
+        }
+        
+        // ヒント4: 3つの解が得られた時点で終了する
+        if (root_count == 3) {
+            printf("3つの解がすべて見つかったため、探索を終了します。\n");
+            break;
+        }
+    }
+    
+    printf("\n--- 最終結果 ---\n");
+    for (int i = 0; i < root_count; i++) {
+        printf("解 %d: v = %.6f\n", i + 1, roots[i]);
+    }
+    
+    return 0;
+}
